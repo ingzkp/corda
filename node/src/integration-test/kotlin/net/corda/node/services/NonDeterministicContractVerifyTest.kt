@@ -11,6 +11,7 @@ import net.corda.core.utilities.getOrThrow
 import net.corda.core.utilities.loggerFor
 import net.corda.flows.djvm.broken.NonDeterministicFlow
 import net.corda.node.DeterministicSourcesRule
+import net.corda.node.OutOfProcessSecurityRule
 import net.corda.node.internal.djvm.DeterministicVerificationException
 import net.corda.testing.core.ALICE_NAME
 import net.corda.testing.core.DUMMY_NOTARY_NAME
@@ -35,10 +36,15 @@ class NonDeterministicContractVerifyTest {
         @JvmField
         val djvmSources = DeterministicSourcesRule()
 
+        @ClassRule
+        @JvmField
+        val security = OutOfProcessSecurityRule()
+
         fun parametersFor(djvmSources: DeterministicSourcesRule): DriverParameters {
             return DriverParameters(
                 portAllocation = incrementalPortAllocation(),
                 startNodesInProcess = false,
+                systemProperties = security.systemProperties,
                 notarySpecs = listOf(NotarySpec(DUMMY_NOTARY_NAME, validating = true)),
                 cordappsForAllNodes = listOf(
                     cordappWithPackages("net.corda.flows.djvm.broken"),
@@ -59,7 +65,7 @@ class NonDeterministicContractVerifyTest {
             val alice = startNode(providedName = ALICE_NAME).getOrThrow()
             val ex = assertThrows<DeterministicVerificationException> {
                 alice.rpc.startFlow(::NonDeterministicFlow, InstantNow())
-                        .returnValue.getOrThrow()
+                    .returnValue.getOrThrow()
             }
             assertThat(ex)
                 .hasMessageStartingWith("NoSuchMethodError: sandbox.java.time.Instant.now()Lsandbox/java/time/Instant;, ")
@@ -72,7 +78,7 @@ class NonDeterministicContractVerifyTest {
             val alice = startNode(providedName = ALICE_NAME).getOrThrow()
             val ex = assertThrows<DeterministicVerificationException> {
                 alice.rpc.startFlow(::NonDeterministicFlow, CurrentTimeMillis())
-                        .returnValue.getOrThrow()
+                    .returnValue.getOrThrow()
             }
             assertThat(ex)
                 .hasMessageStartingWith("NoSuchMethodError: sandbox.java.lang.System.currentTimeMillis()J, ")
@@ -85,7 +91,7 @@ class NonDeterministicContractVerifyTest {
             val alice = startNode(providedName = ALICE_NAME).getOrThrow()
             val ex = assertThrows<DeterministicVerificationException> {
                 alice.rpc.startFlow(::NonDeterministicFlow, NanoTime())
-                        .returnValue.getOrThrow()
+                    .returnValue.getOrThrow()
             }
             assertThat(ex)
                 .hasMessageStartingWith("NoSuchMethodError: sandbox.java.lang.System.nanoTime()J, ")
@@ -98,7 +104,7 @@ class NonDeterministicContractVerifyTest {
             val alice = startNode(providedName = ALICE_NAME).getOrThrow()
             val ex = assertThrows<DeterministicVerificationException> {
                 alice.rpc.startFlow(::NonDeterministicFlow, RandomUUID())
-                        .returnValue.getOrThrow()
+                    .returnValue.getOrThrow()
             }
             assertThat(ex)
                 .hasMessageStartingWith("NoSuchMethodError: sandbox.java.util.UUID.randomUUID()Lsandbox/java/util/UUID;, ")
@@ -111,7 +117,7 @@ class NonDeterministicContractVerifyTest {
             val alice = startNode(providedName = ALICE_NAME).getOrThrow()
             val ex = assertThrows<DeterministicVerificationException> {
                 alice.rpc.startFlow(::NonDeterministicFlow, WithReflection())
-                        .returnValue.getOrThrow()
+                    .returnValue.getOrThrow()
             }
             assertThat(ex).hasMessageStartingWith(
                 "RuleViolationError: Disallowed reference to API; java.lang.Class.getDeclaredConstructor(Class[]), "
@@ -125,7 +131,7 @@ class NonDeterministicContractVerifyTest {
             val alice = startNode(providedName = ALICE_NAME).getOrThrow()
             val txId = assertDoesNotThrow {
                 alice.rpc.startFlow(::NonDeterministicFlow, NoOperation())
-                        .returnValue.getOrThrow()
+                    .returnValue.getOrThrow()
             }
             logger.info("TX-ID: {}", txId)
         }
