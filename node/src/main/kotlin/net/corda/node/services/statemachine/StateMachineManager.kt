@@ -32,6 +32,7 @@ interface StateMachineManager {
 
     enum class StartMode {
         ResumeAll, // Resume all flows except paused flows.
+        PauseHospitalised, // Mark all Hospitalised flows as Paused.
         Safe // Mark all flows as paused.
     }
 
