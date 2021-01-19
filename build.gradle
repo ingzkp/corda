@@ -153,7 +153,6 @@ buildscript {
         }
     }()
     ext.corda_docs_link = "https://docs.corda.net/docs/corda-os/$baseVersion"
-    ext.zkkrypto_version = "1.0.6"
     repositories {
         mavenLocal()
         // Use system environment to activate caching with Artifactory,
@@ -200,7 +199,6 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-allopen:$kotlin_version"
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.4'
         classpath "net.corda.plugins:publish-utils:$gradle_plugins_version"
         classpath "net.corda.plugins:quasar-utils:$gradle_plugins_version"
         classpath "net.corda.plugins:cordformation:$gradle_plugins_version"
